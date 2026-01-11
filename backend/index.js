@@ -44,7 +44,13 @@ app.use(fileUpload());
 // CORS configuration
 const cors = require('cors');
 app.use(cors({
-    origin: ['http://localhost:3000', 'http://localhost:5000'],
+    origin: [
+        'http://localhost:3000',
+        'http://localhost:5173',
+        'http://localhost:4000',
+        process.env.FRONTEND_URL,
+        /\.vercel\.app$/
+    ].filter(Boolean),
     credentials: true
 }));
 

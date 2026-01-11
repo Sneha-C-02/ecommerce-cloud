@@ -6,6 +6,11 @@ import { Provider } from 'react-redux'
 import store from './store.jsx'
 import { positions, transitions, Provider as AlertProvider } from 'react-alert'
 import AlertTemplate from 'react-alert-template-basic'
+import axios from 'axios'
+import { API_URL } from './apiConfig'
+
+axios.defaults.baseURL = API_URL;
+axios.defaults.withCredentials = true;
 
 const options = {
   timeout: 5000,
