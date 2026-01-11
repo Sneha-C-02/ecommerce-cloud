@@ -91,15 +91,15 @@ app.get('/test', (req, res) => {
     res.send('This is E-Kart website.');
 });
 
-// Serve frontend in production
-if (process.env.NODE_ENV === 'production') {
-    const frontendPath = path.join(__dirname, '..', 'frontend', 'dist');
-    app.use(express.static(frontendPath));
+// // Serve frontend in production
+// if (process.env.NODE_ENV === 'production') {
+//     const frontendPath = path.join(__dirname, '..', 'frontend', 'dist');
+//     app.use(express.static(frontendPath));
 
-    app.get('*', (req, res) => {
-        res.sendFile(path.resolve(frontendPath, 'index.html'));
-    });
-}
+//     app.get('*', (req, res) => {
+//         res.sendFile(path.resolve(frontendPath, 'index.html'));
+//     });
+// }
 
 // Start server + connect DB with auto free port logic
 const start = async () => {
