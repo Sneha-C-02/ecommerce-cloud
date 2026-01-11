@@ -13,7 +13,7 @@ const LoginSignUp = () => {
     const alert = useAlert();
     const dispatch = useDispatch();
 
-    const { error, loading, isAuthenticate ,token} = useSelector((state) => state.user)
+    const { error, loading, isAuthenticate, token } = useSelector((state) => state.user)
 
     const [currState, setCurState] = useState("Login");
     const [data, setData] = useState({
@@ -57,9 +57,6 @@ const LoginSignUp = () => {
         formData.append('password', data.password);
         if (avatar) {
             formData.append('avatar', avatar);
-        } else {
-            alert.error("Avatar is required for registration");
-            return;
         }
 
         dispatch(register(formData));

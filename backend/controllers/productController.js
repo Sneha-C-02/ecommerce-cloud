@@ -4,7 +4,7 @@ const mongoose = require('mongoose')
 const cloudinary = require('cloudinary').v2;
 const multer = require('multer');
 const upload = multer({ storage: multer.memoryStorage() });
-    // upload.array('images', 10),
+// upload.array('images', 10),
 
 
 // ADMIN --- Controller --- Admin Rights
@@ -89,7 +89,7 @@ const AddNewProduct = async (req, res) => {
 // Get All the data --- USER --- ADMIN 
 const getAllProducts = async (req, res) => {
     try {
-        let resultPerPage = 8;
+        let resultPerPage = 12;
         const productCount = await ProductSchema.countDocuments(); // inbuilt function
         const apiFeatures = new ApiFeatures(ProductSchema.find(), req.query)
             .search()

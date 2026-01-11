@@ -25,12 +25,60 @@ const newOrder = async (req, res) => {
             totalPrice,
             userId: req.user.id
         });
+        // ✅ TEMP LOG: Verify order creation in MongoDB
+        console.log('[ORDER CREATED] ID:', order._id, 'User:', req.user.id, 'Total:', totalPrice);
         res.json({ success: true, message: "Order Successfully placed!", data: order });
     } catch (error) {
         console.log("Error in newOrder function: ", error.message);
         res.status(500).json({
             success: false,
             message: "Something went wrong, Product is not fetched",
+            error: error.message
+        });
+    }
+}
+
+// CREATE COD ORDER (Cash on Delivery)
+const createCODOrder = async (req, res) => {
+    const {
+        shippingInfo,
+        OrderItems,
+        itemsPrice,
+        taxPrice,
+        shippingPrice,
+        totalPrice,
+    } = req.body;
+    try {
+        const order = await OrderSchema.create({
+            shippingInfo,
+            OrderItems,
+            paymentInfo: {
+                id: `COD_${Date.now()}_${req.user.id}`,
+                status: "Cash on Delivery"
+            },
+            paidAt: Date.now(),
+            itemsPrice,
+            taxPrice,
+            shippingPrice,
+            totalPrice,
+            userId: req.user.id
+        });
+
+        // ✅ TEMP LOG: Verify COD order creation
+        console.log('[COD ORDER CREATED] ID:', order._id, 'User:', req.user.id, 'Total:', totalPrice);
+
+        // Clear cart after order placement
+        await UserSchema.findByIdAndUpdate(
+            req.user.id,
+            { cartData: { items: [], totalBill: 0 } }
+        );
+
+        res.json({ success: true, message: "Order placed successfully with COD!", data: order });
+    } catch (error) {
+        console.log("Error in createCODOrder function: ", error.message);
+        res.status(500).json({
+            success: false,
+            message: "Something went wrong, Order not placed",
             error: error.message
         });
     }
@@ -60,6 +108,8 @@ const getSingleOrderDetail = async (req, res) => {
 const myOrder = async (req, res) => {
     try {
         const myOrders = await OrderSchema.find({ userId: req.user.id });
+        // ✅ TEMP LOG: Verify order retrieval from MongoDB
+        console.log('[MY ORDERS] User:', req.user.id, 'Found:', myOrders.length, 'orders');
         res.json({
             success: true,
             data: myOrders,
@@ -103,7 +153,7 @@ const getAllOrders = async (req, res) => {
 // Admin --- rights
 const updateOrderStatus = async (req, res) => {
     const { id } = req.params;
-    const { orderStatus } = req.body;    
+    const { orderStatus } = req.body;
     try {
         const order = await OrderSchema.findById(id);
         if (!order) {
@@ -169,21 +219,19 @@ const updateStoke = async (productId, quantity) => {
     try {
         const product = await ProductSchema.findById(productId);
         if (!product) {
-            return res.json({ success: true, message: `product doesn't found with this id:${id}` });
+            console.log(`Product doesn't found with id: ${productId}`);
+            return;
         }
         product.Stock -= quantity;
         await product.save({ validateBeforeSave: false });
     } catch (error) {
         console.log("Error in updateStoke function: ", error.message);
-        res.status(500).json({
-            success: false,
-            message: "Something went wrong.",
-            error: error.message
-        });
     }
 }
+
 module.exports = {
     newOrder,
+    createCODOrder,
     getSingleOrderDetail,
     myOrder,
     getAllOrders,

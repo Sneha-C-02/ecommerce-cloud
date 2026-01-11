@@ -3,6 +3,7 @@ const router = express.Router();
 const { protecteRoute, authorizeRole } = require('../middleware/protectedRoute');
 const {
     newOrder,
+    createCODOrder,
     getSingleOrderDetail,
     myOrder,
     getAllOrders,
@@ -11,6 +12,7 @@ const {
 } = require('../controllers/orderController');
 
 router.route('/orders/place').post(protecteRoute, newOrder);
+router.route('/orders/cod').post(protecteRoute, createCODOrder);
 router.route('/orders/:id').get(protecteRoute, getSingleOrderDetail);
 router.route('/me/orders').get(protecteRoute, myOrder);
 router.route('/orders').get(protecteRoute, authorizeRole("admin"), getAllOrders);

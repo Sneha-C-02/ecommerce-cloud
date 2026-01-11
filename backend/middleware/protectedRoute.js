@@ -5,14 +5,10 @@ const protecteRoute = async (req, res, next) => {
     const { token } = req.cookies;
     try {
         if (!token) {
-            return res.json({ success: false, message: "User is -Unauthorized!" });
+            return res.status(401).json({ success: false, message: "Please login to access this resource" });
         }
-        const decode_token = jwt.verify(token, process.env.JWT_SECERET);
-        // req.userId = await decode_token._id;
+        const decode_token = jwt.verify(token, process.env.JWT_SECRET);
         req.user = await UserSchema.findById(decode_token.id);
-        // save the all info in req.user
-        // console.log(decode_token);
-
         next();
     } catch (error) {
         console.log("Error in protecteRoute function: ", error.message);
@@ -34,9 +30,10 @@ const authorizeRole = (...roles) => {
                 })
             )
         }
-    next();
+        next();
     }
 }
+
 module.exports = {
     protecteRoute,
     authorizeRole

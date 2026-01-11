@@ -20,19 +20,21 @@
     justify-content: center;
 
 }
-.left-side .carousel{
-    width: 65%;
-    margin:40px auto;
-    
+
+.left-side .carousel {
+    width: 100% !important;
+    min-width: 400px;
 }
 
-.carousel-img{
-    width: 100%;
+.carousel-img {
+    width: 100% !important;
+    height: 500px !important;
+    object-fit: contain;
     border-radius: 4px;
-
 }
 
-.submitDialog{
+
+.submitDialog {
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -40,7 +42,7 @@
     gap: 14px;
 }
 
-.submitDialogTextArea{
+.submitDialogTextArea {
     color: #323232;
     padding: 10px;
     font-size: 14px;
@@ -55,7 +57,7 @@
     display: flex;
     flex-direction: column;
     padding: 4%;
-    gap:45px;
+    gap: 45px;
     justify-content: start;
 }
 
@@ -75,7 +77,7 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    padding:1rem 0;
+    padding: 1rem 0;
     border-top: 1px solid #c5c5c5;
     border-bottom: 1px solid #c5c5c5;
     margin-top: 0px;
@@ -108,14 +110,16 @@
     font-size: 16px;
 }
 
-.status{
-    padding:1.6rem 0;
+.status {
+    padding: 1.6rem 0;
     border-top: 1px solid #c5c5c5;
     border-bottom: 1px solid #c5c5c5;
 }
-.counter div button:first-child{
+
+.counter div button:first-child {
     padding: 10px 16px;
 }
+
 .counter div button {
     cursor: pointer;
     background-color: #240750;
@@ -128,10 +132,11 @@
 .counter div p {
     padding: 9.2px 16px;
     border-left: 0px;
-    border-right:0px ;
+    border-right: 0px;
 }
 
-.counter .btn,.submit-review.btn {
+.counter .btn,
+.submit-review.btn {
     padding: 10px 30px;
     border-radius: 50px;
     border: 1px solid #c5c5c5;
@@ -148,34 +153,36 @@
     transform: scale(0.95);
 }
 
-.status-text ,.discription-text{
+.status-text,
+.discription-text {
     font-size: 16px;
     font-weight: 700;
     color: black;
     text-transform: capitalize;
 }
 
-.discription{
+.discription {
     font-size: 14px;
     color: #323232;
 }
 
-.submit-review.btn{
+.submit-review.btn {
     width: 180px;
 }
 
-.greenColor{
+.greenColor {
     color: green;
 }
-.redColor{
+
+.redColor {
     color: red;
 }
 
-.review-container span:first-child{
+.review-container span:first-child {
     font-size: 20px;
 }
 
-.id-title.ok{
+.id-title.ok {
     margin-top: 40px;
     margin-bottom: 0;
     width: 100%;
@@ -185,45 +192,53 @@
     padding: 18px;
     font-weight: normal;
 }
-.id-title.ok p{
+
+.id-title.ok p {
     margin-bottom: 0px;
     font-weight: 500;
     border-bottom: 1px solid #c5c5c5;
-    padding:0 20px;
+    padding: 0 20px;
 }
+
 @media (max-width:1000px) {
     .rght-side {
         gap: 20px;
     }
-    .single-product-page .single-product-container{
+
+    .single-product-page .single-product-container {
         width: 95%;
     }
 }
+
 @media (max-width:752px) {
     .rght-side {
         gap: 40px;
         width: 100%;
     }
-    .left-side{
+
+    .left-side {
         width: 100%;
-        
+
     }
-    .single-product-page .single-product-container{
+
+    .single-product-page .single-product-container {
         width: 95%;
-        flex-direction: column  ;
+        flex-direction: column;
         margin-top: 40px;
     }
-    .left-side .carousel{
+
+    .left-side .carousel {
         width: 85%;
-        margin:40px auto;  
+        margin: 40px auto;
     }
-    .rght-side .id-title{
+
+    .rght-side .id-title {
         margin-top: 30px;
     }
 }
 
 @media (max-width:450px) {
-    .product-section .product-container{
+    .product-section .product-container {
         width: 86%;
     }
 }

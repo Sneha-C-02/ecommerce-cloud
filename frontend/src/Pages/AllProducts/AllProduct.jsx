@@ -8,27 +8,25 @@ import { useParams } from 'react-router-dom';
 import Pagination from 'react-js-pagination'
 import './AllProduct.css'
 import Filteration from '../../Components/Filteration/Filteration';
-import { FaAngleLeft } from "react-icons/fa6";
-import { FaAngleRight } from "react-icons/fa6";
-import { FaInfinity } from "react-icons/fa6";
+import { FaAngleLeft, FaAngleRight, FaInfinity } from "react-icons/fa6";
 
 const AllProduct = () => {
-
 
     const [price, setPrice] = useState([200, 100000]);
     const [category, setCategory] = useState("");
     const [ratings, setRatings] = useState(0);
+    const [currentPage, setCurrentPage] = useState(1)
 
     const alert = useAlert();
     const dispatch = useDispatch();
-    const [currentPage, setCurrentPage] = useState(1)
-    const { product,
+
+    const {
+        product,
         error,
         loading,
         productsCount,
         resultPerPage,
         filteredProductsCount,
-        // ye phle length provide kar de rah hai pagination hone se phle in backend
     } = useSelector(state => state.products);
 
     const { keyword } = useParams();
@@ -37,15 +35,14 @@ const AllProduct = () => {
         setCurrentPage(e)
     }
 
-    console.log(keyword)
-
     useEffect(() => {
         if (error) {
-            alert.error(error)
+            alert.error(error);
             dispatch(clearError());
         }
+
         dispatch(getAllProducts(keyword, currentPage, price, category, ratings));
-    }, [dispatch, keyword, currentPage, price, category, ratings]);
+    }, [dispatch, keyword, currentPage, price, category, ratings, alert]);
 
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -59,23 +56,24 @@ const AllProduct = () => {
                         <div className="heading">
                             <h2>Products</h2>
                         </div>
+
                         {
                             loading
                                 ? <Loder />
                                 : <div className="content-2">
                                     {
-                                        product && product.map((item) => {
-                                            return (
-                                                <ProductCard item={item} key={item._id} />
-                                            )
-                                        })
+                                        product && product.length > 0
+                                            ? product.map((item) => (
+                                                item?._id && <ProductCard item={item} key={item._id} />
+                                              ))
+                                            : <p>No products found</p>
                                     }
-
-                                </div>
+                                  </div>
                         }
                     </div>
+
                     {
-                        (resultPerPage < filteredProductsCount) && (
+                        resultPerPage < filteredProductsCount && (
                             <div className="paginationBox">
                                 <Pagination
                                     activePage={currentPage}
@@ -95,6 +93,7 @@ const AllProduct = () => {
                         )
                     }
                 </div>
+
                 <div className="filter">
                     <Filteration
                         price={price} setPrice={setPrice}
@@ -104,7 +103,7 @@ const AllProduct = () => {
                 </div>
             </section>
         </>
-    )
-}
+    );
+};
 
-export default AllProduct
+export default AllProduct;

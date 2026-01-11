@@ -11,7 +11,10 @@ const { Register,
     fetchAllUser,
     getSingleUser,
     updateUserRole,
-    deleteUser
+    deleteUser,
+    updateCart,
+    getCart,
+    clearCart
 } = require('../controllers/userController');
 const { protecteRoute, authorizeRole } = require('../middleware/protectedRoute')
 
@@ -28,5 +31,10 @@ router.route('/:id').get(protecteRoute, authorizeRole("admin"), getSingleUser);
 router.route('/role/:id').put(protecteRoute, authorizeRole("admin"), updateUserRole);
 router.route('/delete/:id').delete(protecteRoute, authorizeRole("admin"), deleteUser);
 router.route('/auth/logout').get(Logout);
+
+// Cart routes
+router.route('/cart').put(protecteRoute, updateCart);
+router.route('/cart').get(protecteRoute, getCart);
+router.route('/cart/clear').delete(protecteRoute, clearCart);
 
 module.exports = router;

@@ -61,7 +61,7 @@ const addNewProduct = (productData) => async (dispatch) => {
         const response = await axios.post(
             `/api/v1/product/new`,
             productData,
-            { headers: { "Content-Type": "applicationjson" } }
+            { headers: { "Content-Type": "application/json" } }
         );
         dispatch({
             type: ADD_NEW_PRODUCT_SUCEESS,
@@ -114,7 +114,7 @@ const deleteProduct = (id) => async (dispatch) => {
     }
 }
 
-// FTCH ALL PRODUCT LIST FOR ADMIN
+// FETCH ALL PRODUCT LIST FOR ADMIN
 const productForAdminPanel = () => async (dispatch) => {
     try {
         dispatch({ type: ADMIN_ALL_PRODUCT_REQUEST });
@@ -131,8 +131,13 @@ const productForAdminPanel = () => async (dispatch) => {
     }
 }
 
-//Get Single product detail
+// Get Single product detail
 const getSingleProducts = (id) => async (dispatch) => {
+    // ✅ Guard against undefined or null id to prevent /product/undefined API calls
+    if (!id) {
+        console.warn('getSingleProducts called with undefined/null id - skipping API call');
+        return;
+    }
     try {
         dispatch({ type: SINGLE_PRODUCT_REQUEST });
         const response = await axios.get(`/api/v1/product/${id}`);
@@ -143,7 +148,7 @@ const getSingleProducts = (id) => async (dispatch) => {
     } catch (error) {
         dispatch({
             type: SINGLE_PRODUCT_FAIL,
-            payload: error.response.data.message
+            payload: error.response?.data?.message || error.message
         })
     }
 }
@@ -171,7 +176,7 @@ const newReview = (reviewData) => async (dispatch) => {
     }
 }
 
-// GET ALL REVIESW OF PRODUCT --- ADMIN
+// GET ALL REVIEWS OF PRODUCT --- ADMIN
 const getAllProductReviews = (productId) => async (dispatch) => {
     try {
         dispatch({ type: GET_ALL_REVIEWS_REQUEST })
@@ -221,4 +226,4 @@ const clearError = () => async (dispatch) => {
 }
 
 
-export { getAllProducts, clearError, getSingleProducts, newReview, productForAdminPanel, addNewProduct, deleteProduct, updateProduct, getAllProductReviews,deleteProductReviews }
+export { getAllProducts, clearError, getSingleProducts, newReview, productForAdminPanel, addNewProduct, deleteProduct, updateProduct, getAllProductReviews, deleteProductReviews }

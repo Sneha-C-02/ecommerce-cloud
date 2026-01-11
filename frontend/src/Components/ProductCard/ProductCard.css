@@ -10,8 +10,19 @@
     height: 520px;
 }
 
+.img {
+    height: 250px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #fff;
+    overflow: hidden;
+}
+
 .img img {
+    height: 100%;
     width: 100%;
+    object-fit: contain;
     border-radius: 6px 6px 0 0;
 }
 
@@ -34,7 +45,7 @@
     font-size: max(2rem, 16px);
     font-weight: 600;
     color: tomato;
-    padding:15px;
+    padding: 15px;
     padding-bottom: 20px;
 }
 

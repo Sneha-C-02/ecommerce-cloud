@@ -1,22 +1,22 @@
-const sendTokenInCookie = (user, statusCode, res,message) => {
-    const token = user.generateToken();
-  
-    const options = {
-      expires: new Date(
-        Date.now() + process.env.JWT_COOKIE_EXPIRE * 24 * 60 * 60 * 1000
-      ),
+const sendTokenInCookie = (user, statusCode, res, message) => {
+  // generate JWT from method on schema
+  const token = user.generateToken();
+
+  // Set a simple session cookie (no expires, no complex options)
+  res
+    .status(statusCode)
+    .cookie("token", token, {
       httpOnly: true,
-    };
-  
-    res
-      .status(statusCode)
-      .cookie("token", token, options)
-      .json({
-        success: true,
-        user,
-        token,
-        message
-      });
-  };
-  
-  module.exports = sendTokenInCookie;
+      // Uncomment these if you deploy later:
+      // secure: process.env.NODE_ENV === "production",
+      // sameSite: "lax",
+    })
+    .json({
+      success: true,
+      message,
+      token,
+      user,
+    });
+};
+
+module.exports = sendTokenInCookie;

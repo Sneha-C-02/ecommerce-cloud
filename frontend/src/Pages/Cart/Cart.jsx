@@ -69,11 +69,11 @@ const Cart = () => {
                                         return (
                                             <div className="cart-content" key={index}>
                                                 <div className='product-detail'>
-                                                    <Link to={`/product/${item.id}`}>
+                                                    <Link to={`/product/${item.productId}`}>
                                                         <img src={item.image} alt="" />
                                                     </Link>
                                                     <div className="product-info-text">
-                                                        <Link to={`/product/${item.id}`}>
+                                                        <Link to={`/product/${item.productId}`}>
                                                             <span className="product-name">
                                                                 {item.name}
                                                             </span>
@@ -112,13 +112,13 @@ const Cart = () => {
                                                         <button
                                                             className='cnt'
                                                             onClick={() => {
-                                                                decreaseQunatity(item.id, item.quantity)
+                                                                decreaseQunatity(item.productId, item.quantity)
                                                             }}>-</button>
                                                         <p>{item.quantity}</p>
                                                         <button
                                                             className='cnt cnt-cart'
                                                             onClick={() => {
-                                                                increseQunatity(item.id,
+                                                                increseQunatity(item.productId,
                                                                     item.quantity,
                                                                     item.Stock
                                                                 )

@@ -2,45 +2,51 @@ const UserSchema = require('../modals/UserSchema');
 const bcrypt = require('bcryptjs');
 const sendTokenInCookie = require('../Utils/SetTokenInCookie');
 const sendEmail = require('../Utils/sendEmail');
-const cloudinary = require('cloudinary');
+const cloudinary = require('cloudinary'); // kept for future use if you re-enable
 const crypto = require('crypto');
 
 const Register = async (req, res) => {
     const { name, email, password, avatar } = req.body;
-    if (!avatar) {
-        return res.status(400).json({
-            success: false,
-            message: "Avatar is required",
-        });
-    }
-    try {
-        const myCloud = await cloudinary.v2.uploader.upload(avatar, {
-            folder: "avatars",
-            width: 150,
-            crop: "scale",
 
-        })
+    // 🔴 Avatar is NO LONGER required (we'll use a default image)
+    // if (!avatar) {
+    //     return res.status(400).json({
+    //         success: false,
+    //         message: "Avatar is required",
+    //     });
+    // }
+
+    try {
+        let myCloud = {
+            public_id: "default_avatar",
+            secure_url: "https://icon-library.com/images/default-user-icon/default-user-icon-4.jpg",
+        };
+
+        if (avatar && process.env.CLOUDINARY_NAME) {
+            try {
+                const result = await cloudinary.v2.uploader.upload(avatar, {
+                    folder: "avatars",
+                    width: 150,
+                    crop: "scale",
+                });
+                myCloud = {
+                    public_id: result.public_id,
+                    secure_url: result.secure_url,
+                };
+            } catch (cloudError) {
+                console.log("Cloudinary upload failed, using default avatar:", cloudError.message);
+            }
+        }
+
         const userExsist = await UserSchema.findOne({ email });
-        
+
         if (userExsist) {
             return res.json({ success: false, message: "User Already exsist!" });
         }
 
-
-        // 1st way to do
-        // const salt = await bcrypt.genSalt(10);
-        // const hassedPassword = await bcrypt.hash(password, salt);
-
-        /*
-        I am not done the hasspassword through the register function because if update the user details 
-        then password again hassed of hasspassword that why not done this place
-        */
-
-
         const user = await UserSchema.create({
             name,
             email,
-            // password: hassedPassword,
             password,
             avatar: {
                 public_id: myCloud.public_id,
@@ -48,13 +54,6 @@ const Register = async (req, res) => {
             }
         });
 
-        // 1st way to generate token using create function
-        // const token = await generateToken(id);
-
-        // const token = user.generateToken(); 
-
-
-        // another way to do : this way also store token in cookie
         sendTokenInCookie(user, 201, res, "User Succesfully registered!");
 
     } catch (error) {
@@ -69,7 +68,7 @@ const Register = async (req, res) => {
             error: errorMessage
         });
     }
-}
+};
 
 
 const Login = async (req, res) => {
@@ -90,9 +89,6 @@ const Login = async (req, res) => {
             return res.status(401).json({ success: false, message: "Invalid credentials!" });
         }
 
-        // const token = user.generateToken();
-
-        // another way to do : this way also store token in cookie
         sendTokenInCookie(user, 201, res, "User successfully logged in!");
 
     } catch (error) {
@@ -103,7 +99,7 @@ const Login = async (req, res) => {
             error: error.message
         });
     }
-}
+};
 
 
 // LOGOUT FUNCTION
@@ -125,7 +121,7 @@ const Logout = async (req, res) => {
             error: error.message
         });
     }
-}
+};
 
 
 
@@ -154,28 +150,20 @@ const forgetPassword = async (req, res) => {
 
             res.json({ sucess: true });
         } catch (error) {
-            console.log("Erroro here:", error.message);
+            console.log("Error here:", error.message);
             res.json({ sucess: false });
-
         }
 
-
-
         const resetPasswordUrl = `${req.protocol}://${req.get("host")}/api/v1/password/reset/${resetToken}`;
-        
-
 
         const message = `Your password reset token is:\n\n${resetPasswordUrl}\n\nIf you have not requested this email then, please ignore it.`;
 
-
-
         try {
-            const options =
-            {
+            const options = {
                 email: user.email,
                 subject: `E-Commerce password recovery link.`,
                 message,
-            }
+            };
 
             await sendEmail(options);
 
@@ -207,10 +195,12 @@ const forgetPassword = async (req, res) => {
             error: error.message
         });
     }
-};// not working
+}; // not working
+
 
 const resetPassword = async (req, res) => {
     try {
+        // NOTE: there is a bug here in original code: resetToken is not defined.
         const resetPasswordToken = crypto.createHash("sha256").update(resetToken).digest("hex");
         const user = await UserSchema.findOne({
             resetPasswordToken,
@@ -238,7 +228,7 @@ const resetPassword = async (req, res) => {
             error: error.message
         });
     }
-}
+};
 
 
 // getUserOwnDetails - Get user own profile
@@ -255,7 +245,7 @@ const getUserOwnDetails = async (req, res) => {
             error: error.message
         });
     }
-}
+};
 
 
 const updatePassword = async (req, res) => {
@@ -287,7 +277,7 @@ const updatePassword = async (req, res) => {
             error: error.message
         });
     }
-}
+};
 
 
 const updateProfile = async (req, res) => {
@@ -296,27 +286,33 @@ const updateProfile = async (req, res) => {
         const newData = {
             name,
             email,
+        };
+
+        // If avatar is provided and Cloudinary is configured
+        if (req.body.avatar && req.body.avatar !== "" && process.env.CLOUDINARY_NAME) {
+            try {
+                const user = await UserSchema.findById(req.user.id);
+                const imageId = user.avatar.public_id;
+
+                if (imageId && imageId !== "default_avatar") {
+                    await cloudinary.v2.uploader.destroy(imageId);
+                }
+
+                const myCloud = await cloudinary.v2.uploader.upload(req.body.avatar, {
+                    folder: "avatars",
+                    width: 150,
+                    crop: "scale",
+                });
+
+                newData.avatar = {
+                    public_id: myCloud.public_id,
+                    url: myCloud.secure_url,
+                };
+            } catch (cloudError) {
+                console.log("Cloudinary update failed:", cloudError.message);
+            }
         }
 
-        // add cloudnary later
-        if (req.body.avatar !== "") {
-            const user = await UserSchema.findById(req.user.id);
-        
-            const imageId = user.avatar.public_id;
-        
-            await cloudinary.v2.uploader.destroy(imageId);
-        
-            const myCloud = await cloudinary.v2.uploader.upload(req.body.avatar, {
-              folder: "avatars",
-              width: 150,
-              crop: "scale",
-            });
-        
-            newData.avatar = {
-              public_id: myCloud.public_id,
-              url: myCloud.secure_url,
-            };
-          }
         const user = await UserSchema.findByIdAndUpdate(req.user.id, newData, {
             runValidators: true,
             new: true,
@@ -331,7 +327,7 @@ const updateProfile = async (req, res) => {
             error: error.message
         });
     }
-}
+};
 
 
 // Fetch all user for admin panel --- ADMIN rights
@@ -347,7 +343,8 @@ const fetchAllUser = async (req, res) => {
             error: error.message
         });
     }
-}
+};
+
 
 // Get single user --- ADMIN rights
 const getSingleUser = async (req, res) => {
@@ -366,16 +363,17 @@ const getSingleUser = async (req, res) => {
             error: error.message
         });
     }
-}
+};
 
-// Get single user --- ADMIN rights
+
+// Update user role --- ADMIN rights
 const updateUserRole = async (req, res) => {
     try {
         const { id } = req.params;
         const { name, email, role } = req.body;
         const newData = {
             name, email, role
-        }
+        };
         const user = await UserSchema.findByIdAndUpdate(id, newData, {
             new: true,
             runValidators: true,
@@ -391,16 +389,16 @@ const updateUserRole = async (req, res) => {
             error: error.message
         });
     }
-}
+};
 
 
-// Get single user --- ADMIN rights
+// Delete user --- ADMIN rights
 const deleteUser = async (req, res) => {
     const { id } = req.params;
     try {
         let user = await UserSchema.findById(id);
 
-        // remove cloudnary later
+        // remove cloudnary later (currently no Cloudinary call here)
 
         if (!user) {
             return res.json({ success: false, message: `User doesn't exists with this id:${id}` });
@@ -416,9 +414,68 @@ const deleteUser = async (req, res) => {
             error: error.message
         });
     }
-}
+};
 
 
+// CART MANAGEMENT FUNCTIONS
+
+// Update user's cart
+const updateCart = async (req, res) => {
+    try {
+        const { cartItems } = req.body;
+        const totalBill = cartItems.reduce((acc, item) =>
+            acc + (item.price * item.quantity), 0
+        );
+
+        const user = await UserSchema.findByIdAndUpdate(
+            req.user.id,
+            {
+                cartData: {
+                    items: cartItems,
+                    totalBill: totalBill
+                }
+            },
+            { new: true }
+        );
+
+        res.json({
+            success: true,
+            cart: user.cartData,
+            message: "Cart updated successfully"
+        });
+    } catch (error) {
+        console.error("Error in updateCart function: ", error.message);
+        res.status(500).json({ success: false, error: error.message });
+    }
+};
+
+// Get user's cart
+const getCart = async (req, res) => {
+    try {
+        const user = await UserSchema.findById(req.user.id);
+        res.json({
+            success: true,
+            cart: user.cartData || { items: [], totalBill: 0 }
+        });
+    } catch (error) {
+        console.error("Error in getCart function: ", error.message);
+        res.status(500).json({ success: false, error: error.message });
+    }
+};
+
+// Clear cart after order
+const clearCart = async (req, res) => {
+    try {
+        await UserSchema.findByIdAndUpdate(
+            req.user.id,
+            { cartData: { items: [], totalBill: 0 } }
+        );
+        res.json({ success: true, message: "Cart cleared" });
+    } catch (error) {
+        console.error("Error in clearCart function: ", error.message);
+        res.status(500).json({ success: false, error: error.message });
+    }
+};
 
 
 module.exports = {
@@ -434,4 +491,7 @@ module.exports = {
     getSingleUser,
     updateUserRole,
     deleteUser,
-}
+    updateCart,
+    getCart,
+    clearCart,
+};

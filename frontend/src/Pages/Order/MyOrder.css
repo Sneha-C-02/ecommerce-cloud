@@ -61,13 +61,27 @@
     display: none !important;
 }
 
-.MuiTablePagination-caption {
-    font-size: 12px !important; 
+.greenColor {
+    color: green !important;
 }
 
-.MuiDataGrid-root .MuiDataGrid-cell--textRight.MuiDataGrid-cell--withRenderer, .MuiDataGrid-root .MuiDataGrid-cell--textRight.MuiDataGrid-cell--editing {
+.redColor {
+    color: red !important;
+}
+
+.blueColor {
+    color: rgb(0, 110, 255) !important;
+}
+
+.MuiTablePagination-caption {
+    font-size: 12px !important;
+}
+
+.MuiDataGrid-root .MuiDataGrid-cell--textRight.MuiDataGrid-cell--withRenderer,
+.MuiDataGrid-root .MuiDataGrid-cell--textRight.MuiDataGrid-cell--editing {
     justify-content: center !important;
 }
+
 /* 
 .MuiDataGrid-root .MuiDataGrid-columnHeader--alignRight .MuiDataGrid-columnHeaderDraggableContainer, .MuiDataGrid-root .MuiDataGrid-columnHeader--alignRight .MuiDataGrid-columnHeaderTitleContainer {
     flex-direction: row !important;

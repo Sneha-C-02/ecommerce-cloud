@@ -53,6 +53,17 @@ const login = (email, password) => async (dispatch) => {
             payload: response.data,
         })
         Cookies.set('token', response.data.token);
+
+        // Load cart from backend after login
+        try {
+            const cartResponse = await axios.get('/api/v1/user/cart');
+            if (cartResponse.data.success && cartResponse.data.cart.items && cartResponse.data.cart.items.length > 0) {
+                // Dispatch action to load cart items
+                localStorage.setItem("cartItems", JSON.stringify(cartResponse.data.cart.items));
+            }
+        } catch (error) {
+            console.error("Error loading cart from backend:", error);
+        }
     } catch (error) {
         dispatch({
             type: LOGIN_FAIL,
@@ -245,13 +256,13 @@ const getSingleUserDetails = (id) => async (dispatch) => {
 }
 
 //UPDATE USER --- ADMIN --SPECIAL---ROLE OF USER
-const updateUser = (id,userData)=>async(dispatch)=>{
+const updateUser = (id, userData) => async (dispatch) => {
     try {
         dispatch({ type: UPDATE_USER_REQUEST });
         const response = await axios.put(
             `/api/v1/user/role/${id}`,
             userData,
-            {headers:{"Content-Type":"application/json"}}
+            { headers: { "Content-Type": "application/json" } }
         );
         dispatch({
             type: UPDATE_USER_SUCEESS,
@@ -269,7 +280,7 @@ const updateUser = (id,userData)=>async(dispatch)=>{
 
 
 // DELETE USER --- ADMIN
-const deleteUser =(id)=>async(dispatch)=>{
+const deleteUser = (id) => async (dispatch) => {
     try {
         dispatch({ type: DELETE_USER_REQUEST });
         const response = await axios.delete(
@@ -295,4 +306,4 @@ const deleteUser =(id)=>async(dispatch)=>{
 const clearError = () => async (dispatch) => {
     dispatch({ type: CLEAR_ERRORS });
 }
-export { login, clearError, register, loadUser, logout, updateProfile, updatePassword, getAllUsers, getSingleUserDetails,deleteUser,updateUser };
+export { login, clearError, register, loadUser, logout, updateProfile, updatePassword, getAllUsers, getSingleUserDetails, deleteUser, updateUser };

@@ -1,11 +1,15 @@
 import React from 'react'
 import './ConfirmOrder.css'
 import CheckOutStep from '../../Components/CheckOutStep/CheckOutStep'
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom'
+import { createCODOrder } from '../../actions/orderAction';
+import { useAlert } from 'react-alert'
 
 const ConfirmOrder = () => {
     const navigate = useNavigate();
+    const dispatch = useDispatch();
+    const alert = useAlert();
     const { shippingInfo, cartItems } = useSelector(state => state.cart)
     const { user, isAuthenticate } = useSelector(state => state.user);
 
@@ -28,9 +32,38 @@ const ConfirmOrder = () => {
             tax,
             Total
         }
-        sessionStorage.setItem("orderInfo",JSON.stringify(data))
+        sessionStorage.setItem("orderInfo", JSON.stringify(data))
         if (isAuthenticate === true) {
             navigate('/process/payment');
+        }
+    }
+
+    const placeOrderCOD = async () => {
+        if (!isAuthenticate) {
+            alert.error("Please login to place order");
+            navigate('/auth');
+            return;
+        }
+
+        const orderDetails = {
+            shippingInfo,
+            OrderItems: cartItems,
+            itemsPrice: subTotal,
+            taxPrice: tax,
+            shippingPrice: shippingCharges,
+            totalPrice: Total
+        };
+
+        try {
+            const response = await dispatch(createCODOrder(orderDetails));
+            if (response && response.success) {
+                alert.success("Order placed successfully!");
+                navigate('/success');
+            } else {
+                alert.error("Failed to place order. Please try again.");
+            }
+        } catch (error) {
+            alert.error("Error placing order: " + error.message);
         }
     }
 
@@ -104,8 +137,9 @@ const ConfirmOrder = () => {
                         </div>
                         <button
                             className='procced-to-pay'
-                            onClick={proceedPaymentHandler}
-                        >Procced To Pay</button>
+                            onClick={placeOrderCOD}
+                            style={{ marginBottom: "10px", width: "100%" }}
+                        >Place Order (Cash on Delivery)</button>
                     </div>
                 </div>
             </section>
